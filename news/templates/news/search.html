@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Поиск{% endblock %}
+
+
+{% block breaking %}
+    {% load popular %}
+    {% get_popular_up 10 %}
+{% endblock %}
+
+{% block featurednews %}
+{% get_featured 10 %}
+{% endblock %}
+
+{% block latestnews %}
+<div class="col-lg-8">
+    <div class="row">
+        <div class="col-12">
+            <div class="section-title">
+                <h4 class="m-0 text-uppercase font-weight-bold">Latest News</h4>
+            </div>
+        </div>
+
+        {% for new in news %}
+        <div class="col-lg-6">
+            <div class="position-relative mb-3">
+                {% if new.photo %}
+                <img class="img-fluid w-100" src="{{ new.photo.url }}" style="object-fit: cover;height: 250px;">
+                {% else %}
+                <img class="img-fluid w-100" src="{% static 'news.jpg' %}" style="object-fit: cover;height: 250px;">
+                {% endif %}
+
+                <div class="bg-white border border-top-0 p-4">
+                    <div class="mb-2">
+                        <a class="badge badge-primary text-uppercase font-weight-semi-bold p-2 mr-2"
+                           href="{{ new.category.get_absolute_url }}">{{ new.category }}</a>
+                        <a class="text-body" href=""><small>{{ new.created_at }}</small></a>
+                    </div>
+                    <a class="h4 d-block mb-3 text-secondary text-uppercase font-weight-bold"
+                       href="{{ new.get_absolute_url }}">{{ new.title|truncatewords_html:5|safe }}</a>
+                    <p>{{ new.content|truncatewords_html:20|safe }}</p>
+
+                </div>
+                <div class="d-flex justify-content-between bg-white border border-top-0 p-4">
+                    <div class="d-flex align-items-center">
+                        <img class="rounded-circle mr-2" src="{{ new.photo.url }}" width="25" height="25" alt="">
+                        <!--{{ new.author_photo }}-->
+                        <small>{{ new.author }}</small>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <small class="ml-3"><i class="far fa-eye mr-2"></i>{{ new.views }}</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+
+{% block pagination %}
+{% if page_obj.has_other_pages %}
+<div class="pagination-container">
+        <div class="pagination:container">
+            {% if page_obj.has_previous %}
+
+            <div class="pagination:number arrow">
+                <a href="?{{ search }}page={{ page_obj.previous_page_number }}">
+                    <svg width="18" height="18">
+                        <use xlink:href="#left"/>
+                    </svg>
+                    Previous</a>
+            </div>
+            {% endif %}
+            <div class="pagination:container">
+                {% for p in page_obj.paginator.page_range %}
+                {% if page_obj.number == p %}
+                <div class="pagination:number active_paginator">
+                    <a class="pagination:number non-highlight-link active_paginator">{{ p }}</a>
+                </div>
+                {% elif p > page_obj.number|add:-3 and p < page_obj.number|add:3 %}
+                <div class="pagination:number">
+                    <a class="pagination:number" href="?{{ search }}page={{ p }}">{{ p }}</a>
+                </div>
+                {% endif %}
+
+                {% endfor %}
+
+                {% if page_obj.has_next %}
+                <div class="pagination:number">
+                    <a href="?{{ search }}page={{ page_obj.next_page_number }}">
+                        <svg width="18" height="18">
+                            <use xlink:href="#right"/>
+                        </svg>
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+
+            <svg class="hide">
+                <symbol id="left" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                </symbol>
+                <symbol id="right" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                </symbol>
+            </svg>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
